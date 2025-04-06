@@ -25,7 +25,6 @@ jobs:
         with:
           report-path: './ctrf/*.json'
           summary-report: true
-          github-report: true
           failed-report: true
           flaky-report: true
           insights-report: true
