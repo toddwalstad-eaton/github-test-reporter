@@ -23,7 +23,7 @@ jobs:
       - name: Publish Test Report
         uses: ./
         with:
-          report-path: './ctrf/*.json'
+          report-path: './ctrf-reports/*.json'
           summary-report: true
           test-report: true
           suite-folded-report: true
