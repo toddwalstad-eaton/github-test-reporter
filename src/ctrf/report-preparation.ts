@@ -60,6 +60,8 @@ export async function prepareReport(
     )
   }
 
+  report = addInputsToExtra(report, inputs)
+
   return report
 }
 
@@ -114,4 +116,13 @@ function shouldProcessPreviousResults(inputs: Inputs): boolean {
  */
 function hasJunitIntegration(inputs: Inputs): boolean {
   return Boolean(inputs.integrationsConfig?.['junit-to-ctrf'])
+}
+
+function addInputsToExtra(report: CtrfReport, inputs: Inputs): CtrfReport {
+  if (report.results.extra) {
+    report.results.extra.inputs = inputs
+  } else {
+    report.results.extra = { inputs }
+  }
+  return report
 }

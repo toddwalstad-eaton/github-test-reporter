@@ -12,6 +12,7 @@ export async function runAction(): Promise<void> {
     const githubContext = getAllGitHubContext()
 
     const report = await prepareReport(inputs, githubContext)
+    console.log(JSON.stringify(report, null, 2))
     await processIntegrations(inputs.integrationsConfig, report)
 
     await handleViewsAndComments(inputs, report)

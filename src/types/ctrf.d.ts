@@ -1,3 +1,5 @@
+import { Inputs } from './reporter'
+
 export interface CtrfReport {
   results: Results
 }
@@ -139,7 +141,8 @@ export interface EnhancedSummaryExtra extends Record<string, unknown> {
  * Enhanced results extra fields.
  */
 export interface EnhancedResultsExtra {
-  previousReports: EnhancedCtrfReport[]
+  previousReports?: EnhancedCtrfReport[]
+  inputs?: Inputs
 }
 
 /**
