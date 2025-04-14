@@ -27,6 +27,7 @@ jobs:
           summary-report: true
           test-report: true
           suite-folded-report: true
+          failed-folded-report: true
           upload-artifact: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,3 +40,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: always()
+      

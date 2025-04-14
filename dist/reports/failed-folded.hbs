@@ -10,7 +10,7 @@
       {{#if (eq status "failed")}}
       <tr>
         <td>
-          <details>
+          <details {{#if (eq ctrf.extra.inputs.folded false)}}open{{/if}}>
             <summary>{{getCtrfEmoji "failed"}} {{name}}</summary>
             <pre><code>{{#if message}}{{formatMessagePreCode message true}}{{else}}No message available{{/if}}</code></pre>
             <p><strong>Trace:</strong></p>
