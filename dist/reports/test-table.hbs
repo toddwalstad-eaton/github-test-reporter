@@ -1,7 +1,23 @@
-<details open >
-| **Test Name** | **Status** | **Flaky** | **Duration** |
-| --- | --- | --- | --- |
-{{#slice ctrf.tests 0 8000}}
-| {{name}} | {{getCtrfEmoji status}} | {{#if flaky}}{{getCtrfEmoji "flaky"}}{{/if}} | {{formatDurationMs duration}} |
-{{/slice}}
+<details {{#unless ctrf.extra.inputs.folded}}open{{/unless}}>
+  <summary>Results</summary>
+  <table>
+    <thead>
+      <tr>
+        <th><strong>Test Name</strong></th>
+        <th><strong>Status</strong></th>
+        <th><strong>Flaky</strong></th>
+        <th><strong>Duration</strong></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#slice ctrf.tests 0 8000}}
+      <tr>
+        <td>{{name}}</td>
+        <td>{{getCtrfEmoji status}}</td>
+        <td>{{#if flaky}}{{getCtrfEmoji "flaky"}}{{/if}}</td>
+        <td>{{formatDurationMs duration}}</td>
+      </tr>
+      {{/slice}}
+    </tbody>
+  </table>
 </details>

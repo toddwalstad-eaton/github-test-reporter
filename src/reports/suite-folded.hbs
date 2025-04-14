@@ -13,7 +13,7 @@
 {{#each ctrf.extra.suites}}
     <tr>
       <td>
-        <details>
+        <details {{#if (eq ctrf.extra.inputs.folded false)}}open{{/if}}>
           <summary>{{getCtrfEmoji this.results.summary.extra.result}} {{this.results.extra.groupKey}}</summary>
           {{#each this.results.tests}}
           <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{getCtrfEmoji this.status}} {{this.name}}</div>

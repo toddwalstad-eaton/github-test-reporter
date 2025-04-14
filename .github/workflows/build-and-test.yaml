@@ -26,6 +26,7 @@ jobs:
           report-path: './ctrf/*.json'
           summary-report: true
           test-report: true
+          suite-folded-report: true
           upload-artifact: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
