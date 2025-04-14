@@ -48,4 +48,5 @@ export interface Inputs {
   statusCheck: boolean
   statusCheckName: string
   reportOrder: string[]
+  folded: string | boolean
 }

@@ -58,7 +58,8 @@ export function getCliInputs(args: Arguments): Inputs {
     alwaysGroupBy: false,
     statusCheck: false,
     statusCheckName: 'GitHub Test Reporter Results',
-    reportOrder
+    reportOrder,
+    folded: false
   }
 }
 
@@ -140,6 +141,27 @@ export function getInputs(): Inputs {
     statusCheck: core.getInput('status-check').toLowerCase() === 'true',
     statusCheckName:
       core.getInput('status-check-name') || 'Test Reporter Results',
-    reportOrder
+    reportOrder,
+    folded: processFoldedInput(core.getInput('folded'))
   }
+}
+
+/**
+ * Process the 'folded' input value, handling empty string, 'true', or 'false'
+ *
+ * @param foldedInput - The raw folded input value
+ * @returns The processed value: true, false, or empty string
+ */
+function processFoldedInput(foldedInput: string): string | boolean {
+  if (foldedInput === '') {
+    return ''
+  }
+
+  if (foldedInput.toLowerCase() === 'true') {
+    return true
+  } else if (foldedInput.toLowerCase() === 'false') {
+    return false
+  }
+
+  return foldedInput
 }

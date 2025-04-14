@@ -211,6 +211,10 @@ inputs:
        should be displayed in the summary.
     required: false
     default: ''
+  folded:
+    description: 'Fold the folded reports in the summary.'
+    required: false
+    default: ''
 
   # Integration Configuration
   integrations-config:

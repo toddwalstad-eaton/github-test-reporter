@@ -39,6 +39,7 @@ export interface Arguments {
   fetchPreviousResults?: boolean
   reportOrder?: string
   maxWorkflowRunsToCheck?: number
+  folded?: string | boolean
 }
 
 async function main(): Promise<void> {
@@ -328,7 +329,12 @@ async function main(): Promise<void> {
     .options('report-order', {
       type: 'string',
       description:
-        'Comma-separated list of report types to specify the order in which reports should be displayed'
+        'Comma-separated list of report types to specify the order in which reports should be displayed in the summary'
+    })
+    .options('folded', {
+      type: 'string',
+      description: 'Fold the folded reports in the summary (true/false)',
+      choices: ['true', 'false', '']
     })
     .options('max-workflow-runs-to-check', {
       type: 'number',
