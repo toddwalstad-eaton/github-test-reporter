@@ -20,7 +20,7 @@ jobs:
         run: npm install
       - name: Modify reports
         run: npm run modify-reports
-      - name: Reports Requiring Previouss
+      - name: Reports Requiring Previous
         uses: ./
         with:
           report-path: './ctrf-reports/*.json'
