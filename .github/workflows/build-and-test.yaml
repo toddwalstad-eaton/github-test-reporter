@@ -11,45 +11,7 @@ on:
     - cron: '0 2 * * *'
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Install dependencies
-        run: npm install
-      - name: Build
-        run: npm run all:action
-      - name: Publish Test Report
-        uses: ./
-        with:
-          report-path: './ctrf/*.json'
-          summary-report: true
-          github-report: true
-          failed-report: true
-          flaky-report: true
-          insights-report: true
-          fail-rate-report: true
-          flaky-rate-report: true
-          slowest-report: true
-          previous-results-report: true
-          use-suite-name: true
-          upload-artifact: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: always()
-      - name: Publish Test Reports
-        uses: ./
-        with:
-          report-path: './ctrf/*.json'
-          pull-request-report: true
-          update-comment: true
-          always-latest-comment: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: always()
   previous-reports-test:
-    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -67,6 +29,7 @@ jobs:
           fail-rate-report: true
           insights-report: true
           slowest-report: true
+          upload-artifact: true
           annotate: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
