@@ -37,7 +37,6 @@ export async function prepareReport(
   }
   report = stripAnsiFromErrors(report)
   report = enrichCurrentReportWithRunDetails(report, githubContext)
-  if (inputs.uploadArtifact) await uploadArtifact(inputs.artifactName, report)
 
   if (shouldGroupTests(inputs)) {
     report = groupTestsBySuiteOrFilePath(
@@ -60,6 +59,7 @@ export async function prepareReport(
   }
 
   if (inputs.writeCtrfToFile) writeReportToFile(inputs.writeCtrfToFile, report)
+  if (inputs.uploadArtifact) await uploadArtifact(inputs.artifactName, report)
 
   return report
 }
