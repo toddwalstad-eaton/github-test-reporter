@@ -146,7 +146,7 @@ There are several inputs available
     community-report: false
 
     # Behavior Options
-    summary: true # Post report to the job summary. Default is true
+    summary: true # Post report to the job summary. Default is truev
     pull-request: false # Comment on pull request with report. Default is false
     issue: '' # Issue number to comment on. Works with standard issues and pull-request. Default is no issue
     status-check: false # Create a status check for the workflow. Default is false
