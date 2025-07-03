@@ -3,6 +3,9 @@ import { registerAllHelpers } from './helpers'
 import { getAllGitHubContext } from '../github/context'
 import { CtrfReport } from 'src/types'
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-require-imports, @typescript-eslint/no-unsafe-call
+require('handlebars-helpers-ctrf')({ handlebars })
+
 /**
  * Generates markdown content from a Handlebars template and provided data.
  *
