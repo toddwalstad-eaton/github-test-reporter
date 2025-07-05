@@ -107,3 +107,32 @@ export function convertTimestamp(): void {
     return date.toLocaleString('en-US', options)
   })
 }
+
+/**
+ * Strips the suite prefix from a test name.
+ * Test names prefixed with suite names follow the format: "{suite} - {test.name}"
+ * This helper extracts only the test name part.
+ *
+ * @example
+ * In Handlebars:
+ * {{stripSuitePrefix "helpers.test.ts > getEmoji - returns the correct emoji for passed"}}
+ * Returns: "returns the correct emoji for passed"
+ *
+ * @param {string} testName - The test name that may contain a suite prefix.
+ * @returns {string} The test name without the suite prefix.
+ */
+export function stripSuitePrefixHelper(): void {
+  Handlebars.registerHelper('stripSuitePrefix', (testName: string) => {
+    if (!testName) return ''
+    
+    // Find the " - " separator that separates suite from test name
+    const separatorIndex = testName.indexOf(' - ')
+    if (separatorIndex === -1) {
+      // No separator found, return the original test name
+      return testName
+    }
+    
+    // Return everything after the " - " separator
+    return testName.substring(separatorIndex + 3)
+  })
+}

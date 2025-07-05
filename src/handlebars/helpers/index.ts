@@ -3,6 +3,7 @@ import {
   escapeMarkdownHelper,
   sliceStringHelper,
   splitLinesHelper,
+  stripSuitePrefixHelper,
   uppercaseHelper
 } from './string'
 import {
@@ -53,6 +54,7 @@ export function registerAllHelpers(): void {
   escapeMarkdownHelper()
   splitLinesHelper()
   sliceStringHelper()
+  stripSuitePrefixHelper()
   convertTimestamp()
   addHelper()
   anyFlakyTestsHelper()

@@ -16,7 +16,7 @@
         <details>
           <summary>{{getCtrfEmoji this.results.summary.extra.result}} {{this.results.extra.groupKey}}</summary>
           {{#each this.results.tests}}
-          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{getCtrfEmoji this.status}} {{this.name}}</div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{getCtrfEmoji this.status}} {{stripSuitePrefix this.name}}</div>
           {{/each}}
         </details>
       </td>
