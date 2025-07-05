@@ -35,6 +35,7 @@ jobs:
           previous-results-report: true
           use-suite-name: true
           suite-list-report: true
+          suite-folded-report: true
           upload-artifact: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
