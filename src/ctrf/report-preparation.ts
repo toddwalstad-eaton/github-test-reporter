@@ -91,9 +91,7 @@ function shouldGroupTests(inputs: Inputs): boolean {
  * @returns `true` if test names should be prefixed, otherwise `false`.
  */
 function shouldPrefixTestNames(inputs: Inputs): boolean {
-  return (
-    inputs.useSuiteName && !inputs.suiteFoldedReport && !inputs.suiteListReport
-  )
+  return inputs.useSuiteName
 }
 
 /**
