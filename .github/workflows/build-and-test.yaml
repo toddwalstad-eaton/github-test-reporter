@@ -43,3 +43,9 @@ jobs:
           echo "=== Consolidated CTRF Report Contents ==="
           cat ./ctrf/consolidatedctrf-report.json
         if: always()
+      - name: Upload Consolidated CTRF Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: consolidated-ctrf-report
+          path: ./ctrf/consolidatedctrf-report.json
+        if: always()
