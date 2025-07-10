@@ -101,6 +101,7 @@ export interface Insights {
   skippedRate: InsightsMetric
   averageTestDuration: InsightsMetric
   averageRunDuration: InsightsMetric
+  extra?: Record<string, unknown>
 }
 
 export interface InsightsMetric {
@@ -418,18 +419,14 @@ export function calculateAverageTestDurationInsight(
  * Calculates average run duration from multiple reports.
  * Average run duration = (sum of all run durations) / (number of reports)
  */
-function calculateAverageRunDurationFromReports(reports: CtrfReport[]): number {
+function calculateAverageRunDurationFromMetrics( metricsMap: Map<string, AggregatedTestMetrics>
+): number {
   let totalRunDuration = 0
   let validReports = 0
 
-  for (const report of reports) {
-    if (!validateReportForInsights(report)) continue
-    
-    const summary = report.results.summary
-    if (summary.start && summary.stop && summary.stop > summary.start) {
-      totalRunDuration += summary.stop - summary.start
-      validReports += 1
-    }
+  for (const metrics of metricsMap.values()) {
+    totalRunDuration += metrics.totalDuration
+    validReports += 1
   }
 
   if (validReports === 0) {
@@ -453,8 +450,10 @@ export function calculateAverageRunDurationInsight(
   // Combine current report with all previous reports
   const allReports = [currentReport, ...previousReports]
 
+  const metrics = aggregateTestMetricsAcrossReports(allReports)
+
   // Calculate average run duration across all reports
-  const current = calculateAverageRunDurationFromReports(allReports)
+  const current = calculateAverageRunDurationFromMetrics(metrics)
 
   return { current, previous: 0, change: 0 }
 }
@@ -499,9 +498,12 @@ export function calculateCurrentInsights(
       change: 0
     },
     averageRunDuration: {
-      current: calculateAverageRunDurationFromReports(allReports),
+      current: calculateAverageRunDurationFromMetrics(metrics),
       previous: 0,
       change: 0
+    },
+    extra: {
+      
     }
   }
 }
