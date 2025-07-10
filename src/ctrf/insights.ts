@@ -101,6 +101,7 @@ export interface Insights {
   skippedRate: InsightsMetric
   averageTestDuration: InsightsMetric
   averageRunDuration: InsightsMetric
+  reportsAnalyzed: number
   extra?: Record<string, unknown>
 }
 
@@ -147,6 +148,7 @@ interface AggregatedRunMetrics {
   totalResultsSkipped: number // Total test results with final status skipped/pending/other - not including retries
   totalResultsFlaky: number  // Total test results marked as flaky - not including retries
   totalDuration: number      // Total duration of all tests
+  reportsAnalyzed: number    // Total number of reports analyzed    
 }
 
 /**
@@ -187,7 +189,8 @@ function aggregateTestMetricsAcrossReports(
           totalResultsSkipped: 0,
           totalResultsFlaky: 0,
           totalDuration: 0,
-          appearsInRuns: 0
+          appearsInRuns: 0,
+          reportsAnalyzed: 0
         })
       }
 
@@ -264,7 +267,8 @@ function consolidateTestMetricsToRunMetrics(
     totalResultsPassed,
     totalResultsSkipped,
     totalResultsFlaky,
-    totalDuration
+    totalDuration,
+    reportsAnalyzed: metricsMap.size
   }
 }
 
@@ -434,16 +438,16 @@ export function calculateAverageTestDurationInsight(
 
 /**
  * Calculates average run duration from consolidated run metrics.
- * Average run duration = (totalDuration / totalResults)
+ * Average run duration = (totalDuration / reportsAnalyzed)
  */
 function calculateAverageRunDurationFromMetrics(
   runMetrics: AggregatedRunMetrics
 ): number {
-  if (runMetrics.totalResults === 0) {
+  if (runMetrics.reportsAnalyzed === 0) {
     return 0
   }
 
-  return Number((runMetrics.totalDuration / runMetrics.totalResults).toFixed(2))
+  return Number((runMetrics.totalDuration / runMetrics.reportsAnalyzed).toFixed(2))
 }
 
 /**
@@ -514,6 +518,7 @@ export function calculateCurrentInsights(
       previous: 0,
       change: 0
     },
+    reportsAnalyzed: allReports.length,
     extra: {
       ...runMetrics
     }
