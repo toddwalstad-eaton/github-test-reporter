@@ -53,7 +53,9 @@ export function addPreviousReportsToCurrentReport(
         tool: previous.results.tool,
         summary: previous.results.summary,
         tests: [],
-        environment: previous.results.environment
+        environment: previous.results.environment,
+        // @ts-ignore - TODO: fix this - types differ for now
+        insights: previous.insights
       }
     }
 
