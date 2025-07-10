@@ -18,7 +18,7 @@ import {
   enrichReportSummary,
   addPreviousReportsToCurrentReport
 } from '.'
-import { calculateCurrentInsights } from './insights'
+import { addTestInsightsToCurrentReport, calculateCurrentInsights } from './insights'
 
 /**
  * Processes a CTRF report and enriches it with reliability metrics.
@@ -231,7 +231,6 @@ export async function processPreviousResultsAndMetrics(
   report: CtrfReport,
   githubContext: GitHubContext
 ): Promise<CtrfReport> {
-  // Create insights object early since we'll always set reportsAnalyzed
   if (!report.insights) {
     report.insights = {}
   }
@@ -355,7 +354,6 @@ export async function processPreviousResultsAndMetrics(
 
     let updatedReport = addPreviousReportsToCurrentReport(reports, report)
 
-    // Ensure insights object exists on updated report
     if (!updatedReport.insights) {
       updatedReport.insights = {}
     }
@@ -364,6 +362,9 @@ export async function processPreviousResultsAndMetrics(
       updatedReport as any,
       updatedReport.results.extra?.previousReports || []
     )
+
+    // @ts-ignore - TODO: fix this - types differ for now
+    updatedReport = addTestInsightsToCurrentReport(updatedReport, reports)
 
     if (
       inputs.flakyRateReport ||
