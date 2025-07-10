@@ -21,7 +21,6 @@ export interface TestInsights {
   skippedRate: InsightsMetric
   averageTestDuration: InsightsMetric
   appearsInRuns: number
-  totalRuns: number
   extra?: Record<string, unknown>
 }
 
@@ -532,9 +531,8 @@ export function calculateCurrentInsights(
       change: 0
     },
     reportsAnalyzed: allReports.length,
-    extra: {
-      ...relevantMetrics
-    }
+    extra: relevantMetrics
+
   }
 }
 
@@ -612,7 +610,6 @@ function calculateTestInsights(
     skippedRate: calculateTestSkippedRate(testName, testMetrics),
     averageTestDuration: calculateTestAverageDuration(testName, testMetrics),
     appearsInRuns: testMetrics.appearsInRuns,
-    totalRuns: totalReports,
     extra: relevantMetrics
   }
 }
