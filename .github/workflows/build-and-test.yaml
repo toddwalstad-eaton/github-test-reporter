@@ -27,6 +27,7 @@ jobs:
           test-report: true
           previous-results-report: true
           write-ctrf-to-file: ./ctrf/new-ctrf-report.json
+          insights-report: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: always()
