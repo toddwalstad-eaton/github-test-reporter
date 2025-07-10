@@ -602,6 +602,8 @@ function calculateTestInsights(
   testMetrics: AggregatedTestMetrics,
   totalReports: number
 ): TestInsights {
+  const { appearsInRuns, reportsAnalyzed, ...relevantMetrics } = testMetrics
+
   return {
     flakyRate: calculateTestFlakyRate(testName, testMetrics),
     failRate: calculateTestFailRate(testName, testMetrics),
@@ -609,9 +611,7 @@ function calculateTestInsights(
     averageTestDuration: calculateTestAverageDuration(testName, testMetrics),
     appearsInRuns: testMetrics.appearsInRuns,
     totalRuns: totalReports,
-    extra: {
-      ...testMetrics
-    }
+    extra: relevantMetrics
   }
 }
 
