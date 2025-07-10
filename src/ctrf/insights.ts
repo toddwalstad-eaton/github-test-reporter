@@ -494,7 +494,7 @@ export function calculateAverageRunDurationInsight(
  * @param previousReports - Array of historical CTRF reports
  * @returns Insights with current values calculated across all reports
  */
-export function calculateCurrentInsights(
+export function calculateRunInsights(
   currentReport: CtrfReport,
   previousReports: CtrfReport[]
 ): Insights {

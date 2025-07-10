@@ -6,6 +6,7 @@ import {
   EnhancedSummaryExtra,
   GitHubContext
 } from '../types'
+import { calculateRunInsights } from './insights'
 import {
   processTestMetrics,
   combineMetrics,
@@ -42,6 +43,8 @@ export function addPreviousReportsToCurrentReport(
       finalResults: previous.results.summary.tests,
       finalFailures: previous.results.summary.failed
     }
+
+    previous.insights = calculateRunInsights(previous as any, [])
 
     previous.results.summary.extra = summaryExtra
 

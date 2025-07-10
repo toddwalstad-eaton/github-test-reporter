@@ -17,7 +17,6 @@ import {
   isAnyFlakyOnlyReportEnabled,
   isAnySkippedReportEnabled
 } from '../utils/report-utils'
-import { calculateCurrentInsights } from './insights'
 
 /**
  * Prepares a CTRF report by applying various processing steps, including
