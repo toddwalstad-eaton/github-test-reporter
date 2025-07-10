@@ -136,18 +136,24 @@ function validateReportForInsights(report: CtrfReport): boolean {
 }
 
 /**
- * Aggregated test metrics across multiple reports.
+ * Base run-level metrics aggregated across multiple reports.
  */
-interface AggregatedTestMetrics {
-  totalAttempts: number // Total test attempts (includes retries)
-  totalAttemptsFailed: number // Total test attempts failed (includes retries)
-  totalResults: number // Total tests results with final status - not including retries
-  totalResultsFailed: number // Total tests with final status failed - not including retries
-  totalResultsPassed: number // Total tests with final status passed - not including retries
-  totalResultsSkipped: number // Total tests with final status skipped/pending/other - not including retries
-  totalResultsFlaky: number // Total tests marked as flaky - not including retries
-  totalDuration: number // Total duration of all tests
-  appearsInReports: number // Number of reports test appears in
+interface AggregatedRunMetrics {
+  totalAttempts: number      // Total test attempts (includes retries)
+  totalAttemptsFailed: number // Total test attempts failed (includes retries)  
+  totalResults: number       // Total test results with final status - not including retries
+  totalResultsFailed: number // Total test results with final status failed - not including retries
+  totalResultsPassed: number // Total test results with final status passed - not including retries
+  totalResultsSkipped: number // Total test results with final status skipped/pending/other - not including retries
+  totalResultsFlaky: number  // Total test results marked as flaky - not including retries
+  totalDuration: number      // Total duration of all tests
+}
+
+/**
+ * Aggregated run metrics for a single test across multiple reports,
+ */
+interface AggregatedTestMetrics extends AggregatedRunMetrics {
+  appearsInRuns: number // Number of runs test appears in
 }
 
 /**
@@ -181,7 +187,7 @@ function aggregateTestMetricsAcrossReports(
           totalResultsSkipped: 0,
           totalResultsFlaky: 0,
           totalDuration: 0,
-          appearsInReports: 0
+          appearsInRuns: 0
         })
       }
 
@@ -210,13 +216,14 @@ function aggregateTestMetricsAcrossReports(
       metrics.totalDuration += test.duration || 0
     }
 
+    // Track which tests appeared in this report
     const testsInThisReport = new Set<string>()
     for (const test of report.results.tests) {
       testsInThisReport.add(test.name)
     }
     for (const testName of testsInThisReport) {
       const metrics = metricsMap.get(testName)!
-      metrics.appearsInReports += 1
+      metrics.appearsInRuns += 1
     }
   }
 
@@ -507,3 +514,4 @@ export function calculateCurrentInsights(
     }
   }
 }
+
