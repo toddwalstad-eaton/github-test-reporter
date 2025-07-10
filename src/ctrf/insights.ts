@@ -15,6 +15,16 @@ export type CtrfTestState =
   | 'pending'
   | 'other'
 
+export interface TestInsights {
+  flakyRate: InsightsMetric
+  failRate: InsightsMetric
+  skippedRate: InsightsMetric
+  averageTestDuration: InsightsMetric
+  appearsInRuns: number
+  totalRuns: number
+  extra?: Record<string, unknown>
+}
+
 export interface CtrfTest {
   name: string
   status: CtrfTestState
@@ -38,6 +48,7 @@ export interface CtrfTest {
   screenshot?: string
   parameters?: Record<string, unknown>
   steps?: Step[]
+  insights?: TestInsights
   extra?: Record<string, unknown>
 }
 
@@ -524,4 +535,130 @@ export function calculateCurrentInsights(
     }
   }
 }
+
+// i now need to add to current report the insights for each test
+
+// ========================================
+// TEST-LEVEL INSIGHTS FUNCTIONS
+// ========================================
+
+/**
+ * Calculates test-level flaky rate for a specific test.
+ */
+function calculateTestFlakyRate(
+  testName: string,
+  testMetrics: AggregatedTestMetrics
+): InsightsMetric {
+  const current = testMetrics.totalResults === 0 ? 0 : 
+    Number(((testMetrics.totalResultsFlaky / testMetrics.totalResults) * 100).toFixed(2))
+
+  return { current, previous: 0, change: 0 }
+}
+
+/**
+ * Calculates test-level fail rate for a specific test.
+ */
+function calculateTestFailRate(
+  testName: string,
+  testMetrics: AggregatedTestMetrics
+): InsightsMetric {
+  const current = testMetrics.totalResults === 0 ? 0 : 
+    Number(((testMetrics.totalResultsFailed / testMetrics.totalResults) * 100).toFixed(2))
+
+  return { current, previous: 0, change: 0 }
+}
+
+/**
+ * Calculates test-level skipped rate for a specific test.
+ */
+function calculateTestSkippedRate(
+  testName: string,
+  testMetrics: AggregatedTestMetrics
+): InsightsMetric {
+  const current = testMetrics.totalResults === 0 ? 0 : 
+    Number(((testMetrics.totalResultsSkipped / testMetrics.totalResults) * 100).toFixed(2))
+
+  return { current, previous: 0, change: 0 }
+}
+
+/**
+ * Calculates test-level average duration for a specific test.
+ */
+function calculateTestAverageDuration(
+  testName: string,
+  testMetrics: AggregatedTestMetrics
+): InsightsMetric {
+  const current = testMetrics.totalResults === 0 ? 0 : 
+    Number((testMetrics.totalDuration / testMetrics.totalResults).toFixed(2))
+
+  return { current, previous: 0, change: 0 }
+}
+
+/**
+ * Calculates test-level insights for a specific test.
+ */
+function calculateTestInsights(
+  testName: string,
+  testMetrics: AggregatedTestMetrics,
+  totalReports: number
+): TestInsights {
+  return {
+    flakyRate: calculateTestFlakyRate(testName, testMetrics),
+    failRate: calculateTestFailRate(testName, testMetrics),
+    skippedRate: calculateTestSkippedRate(testName, testMetrics),
+    averageTestDuration: calculateTestAverageDuration(testName, testMetrics),
+    appearsInRuns: testMetrics.appearsInRuns,
+    totalRuns: totalReports,
+    extra: {
+      ...testMetrics
+    }
+  }
+}
+
+/**
+ * Adds test-level insights to all tests in the current report.
+ *
+ * @param currentReport - The current CTRF report to add insights to
+ * @param previousReports - Array of historical CTRF reports
+ * @returns The current report with test-level insights added to each test
+ */
+export function addTestInsightsToCurrentReport(
+  currentReport: CtrfReport,
+  previousReports: CtrfReport[]
+): CtrfReport {
+  if (!validateReportForInsights(currentReport)) {
+    return currentReport
+  }
+
+  // Combine current report with all previous reports for analysis
+  const allReports = [currentReport, ...previousReports]
+  const testMetrics = aggregateTestMetricsAcrossReports(allReports)
+
+  // Create a copy of the current report to avoid mutating the original
+  const reportWithInsights: CtrfReport = {
+    ...currentReport,
+    results: {
+      ...currentReport.results,
+      tests: currentReport.results.tests.map(test => {
+        const testName = test.name
+        const metrics = testMetrics.get(testName)
+        
+        if (metrics) {
+          const testInsights = calculateTestInsights(testName, metrics, allReports.length)
+          return {
+            ...test,
+            insights: testInsights
+          }
+        }
+        
+        // If no metrics found, return test without insights
+        return test
+      })
+    }
+  }
+
+  return reportWithInsights
+}
+
+
 
