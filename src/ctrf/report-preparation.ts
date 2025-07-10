@@ -84,11 +84,6 @@ export async function prepareReport(
   }
   core.endGroup()
 
-  report.insights = calculateCurrentInsights(
-    report as any,
-    report.results.extra?.previousReports || []
-  )
-
   return report
 }
 
