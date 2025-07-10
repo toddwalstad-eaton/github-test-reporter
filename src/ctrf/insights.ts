@@ -158,7 +158,7 @@ interface AggregatedRunMetrics {
   totalResultsPassed: number // Total test results with final status passed - not including retries
   totalResultsSkipped: number // Total test results with final status skipped/pending/other - not including retries
   totalResultsFlaky: number  // Total test results marked as flaky - not including retries
-  totalDuration: number      // Total duration of all tests
+  totalResultsDuration: number      // Total duration of all tests
   reportsAnalyzed: number    // Total number of reports analyzed    
 }
 
@@ -199,7 +199,7 @@ function aggregateTestMetricsAcrossReports(
           totalResultsPassed: 0,
           totalResultsSkipped: 0,
           totalResultsFlaky: 0,
-          totalDuration: 0,
+          totalResultsDuration: 0,
           appearsInRuns: 0,
           reportsAnalyzed: 0
         })
@@ -227,7 +227,7 @@ function aggregateTestMetricsAcrossReports(
         metrics.totalResultsFlaky += 1
       }
 
-      metrics.totalDuration += test.duration || 0
+      metrics.totalResultsDuration += test.duration || 0
     }
 
     // Track which tests appeared in this report
@@ -257,7 +257,7 @@ function consolidateTestMetricsToRunMetrics(
   let totalResultsPassed = 0
   let totalResultsSkipped = 0
   let totalResultsFlaky = 0
-  let totalDuration = 0
+  let totalResultsDuration = 0
 
   for (const metrics of metricsMap.values()) {
     totalAttempts += metrics.totalAttempts
@@ -267,7 +267,7 @@ function consolidateTestMetricsToRunMetrics(
     totalResultsPassed += metrics.totalResultsPassed
     totalResultsSkipped += metrics.totalResultsSkipped
     totalResultsFlaky += metrics.totalResultsFlaky
-    totalDuration += metrics.totalDuration
+    totalResultsDuration += metrics.totalResultsDuration
   }
 
   return {
@@ -278,7 +278,7 @@ function consolidateTestMetricsToRunMetrics(
     totalResultsPassed,
     totalResultsSkipped,
     totalResultsFlaky,
-    totalDuration,
+    totalResultsDuration,
     reportsAnalyzed: metricsMap.size
   }
 }
@@ -418,7 +418,7 @@ function calculateAverageTestDurationFromMetrics(
     return 0
   }
 
-  return Number((runMetrics.totalDuration / runMetrics.totalResults).toFixed(2))
+  return Number((runMetrics.totalResultsDuration / runMetrics.totalResults).toFixed(2))
 }
 
 /**
@@ -458,7 +458,7 @@ function calculateAverageRunDurationFromMetrics(
     return 0
   }
 
-  return Number((runMetrics.totalDuration / runMetrics.reportsAnalyzed).toFixed(2))
+  return Number((runMetrics.totalResultsDuration / runMetrics.reportsAnalyzed).toFixed(2))
 }
 
 /**
@@ -503,6 +503,8 @@ export function calculateCurrentInsights(
   const testMetrics = aggregateTestMetricsAcrossReports(allReports)
   const runMetrics = consolidateTestMetricsToRunMetrics(testMetrics)
 
+  const { reportsAnalyzed, ...relevantMetrics } = runMetrics
+
   return {
     flakyRate: {
       current: calculateFlakyRateFromMetrics(runMetrics),
@@ -531,7 +533,7 @@ export function calculateCurrentInsights(
     },
     reportsAnalyzed: allReports.length,
     extra: {
-      ...runMetrics
+      ...relevantMetrics
     }
   }
 }
@@ -589,7 +591,7 @@ function calculateTestAverageDuration(
   testMetrics: AggregatedTestMetrics
 ): InsightsMetric {
   const current = testMetrics.totalResults === 0 ? 0 : 
-    Number((testMetrics.totalDuration / testMetrics.totalResults).toFixed(2))
+    Number((testMetrics.totalResultsDuration / testMetrics.totalResults).toFixed(2))
 
   return { current, previous: 0, change: 0 }
 }
