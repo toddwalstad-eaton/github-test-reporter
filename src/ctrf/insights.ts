@@ -515,7 +515,7 @@ export function calculateCurrentInsights(
       change: 0
     },
     extra: {
-      
+      runMetrics
     }
   }
 }
