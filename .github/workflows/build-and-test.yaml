@@ -24,6 +24,7 @@ jobs:
         uses: ./
         with:
           report-path: './ctrf-reports/*.json'
+          test-report: true
           previous-results-report: true
           write-ctrf-to-file: ./ctrf/new-ctrf-report.json
         env:
