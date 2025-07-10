@@ -536,8 +536,6 @@ export function calculateCurrentInsights(
   }
 }
 
-// i now need to add to current report the insights for each test
-
 // ========================================
 // TEST-LEVEL INSIGHTS FUNCTIONS
 // ========================================
@@ -600,7 +598,6 @@ function calculateTestAverageDuration(
 function calculateTestInsights(
   testName: string,
   testMetrics: AggregatedTestMetrics,
-  totalReports: number
 ): TestInsights {
   const { appearsInRuns, reportsAnalyzed, ...relevantMetrics } = testMetrics
 
@@ -643,7 +640,7 @@ export function addTestInsightsToCurrentReport(
         const metrics = testMetrics.get(testName)
         
         if (metrics) {
-          const testInsights = calculateTestInsights(testName, metrics, allReports.length)
+          const testInsights = calculateTestInsights(testName, metrics)
           return {
             ...test,
             insights: testInsights
@@ -658,6 +655,69 @@ export function addTestInsightsToCurrentReport(
 
   return reportWithInsights
 }
+
+// ========================================
+// BASELINE INSIGHTS FUNCTIONS
+// ========================================
+
+/**
+ * Calculates baseline report-level insights using existing insights from current and previous reports.
+ * Both reports should already have their insights populated.
+ *
+ * @param currentReport - The current CTRF report with insights
+ * @param previousReport - The previous CTRF report with insights
+ * @returns Insights with current, previous, and change values calculated
+ */
+export function calculateReportInsightsBaseline(
+  currentReport: CtrfReport,
+  previousReport: CtrfReport
+): Insights {
+  const currentInsights = currentReport.insights
+  const previousInsights = previousReport.insights
+
+  if (!currentInsights || !previousInsights) {
+    console.log('Both reports must have insights populated')
+    return currentReport.insights as Insights
+  }
+
+  return {
+    flakyRate: {
+      current: currentInsights.flakyRate.current,
+      previous: previousInsights.flakyRate.current,
+      change: Number((currentInsights.flakyRate.current - previousInsights.flakyRate.current).toFixed(2))
+    },
+    failRate: {
+      current: currentInsights.failRate.current,
+      previous: previousInsights.failRate.current,
+      change: Number((currentInsights.failRate.current - previousInsights.failRate.current).toFixed(2))
+    },
+    skippedRate: {
+      current: currentInsights.skippedRate.current,
+      previous: previousInsights.skippedRate.current,
+      change: Number((currentInsights.skippedRate.current - previousInsights.skippedRate.current).toFixed(2))
+    },
+    averageTestDuration: {
+      current: currentInsights.averageTestDuration.current,
+      previous: previousInsights.averageTestDuration.current,
+      change: Number((currentInsights.averageTestDuration.current - previousInsights.averageTestDuration.current).toFixed(2))
+    },
+    averageRunDuration: {
+      current: currentInsights.averageRunDuration.current,
+      previous: previousInsights.averageRunDuration.current,
+      change: Number((currentInsights.averageRunDuration.current - previousInsights.averageRunDuration.current).toFixed(2))
+    },
+    reportsAnalyzed: currentInsights.reportsAnalyzed,
+    extra: currentInsights.extra
+  }
+}
+
+// what to do
+// p95 duration per test
+// avg tests per run
+
+// basline functions. Pass in a previous report and a current report and update current report with insights.
+
+
 
 
 
