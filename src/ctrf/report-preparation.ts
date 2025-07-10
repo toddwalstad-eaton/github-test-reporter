@@ -17,6 +17,7 @@ import {
   isAnyFlakyOnlyReportEnabled,
   isAnySkippedReportEnabled
 } from '../utils/report-utils'
+import { calculateCurrentInsights } from './insights'
 
 /**
  * Prepares a CTRF report by applying various processing steps, including
@@ -82,6 +83,11 @@ export async function prepareReport(
     writeReportToFile(inputs.writeCtrfToFile, report)
   }
   core.endGroup()
+
+  report.insights = calculateCurrentInsights(
+    report as any,
+    report.results.extra?.previousReports || []
+  )
 
   return report
 }

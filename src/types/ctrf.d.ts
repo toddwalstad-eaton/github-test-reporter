@@ -1,5 +1,6 @@
 export interface CtrfReport {
   results: Results
+  insights?: RunInsights
 }
 
 export interface Results {
@@ -84,6 +85,31 @@ export type CtrfTestState =
   | 'pending'
   | 'other'
 
+export type RunInsights = {
+  reportsAnalyzed?: number
+  flakyRate?: InsightsMetric
+  failRate?: InsightsMetric
+  skippedRate?: InsightsMetric
+  averageRunDuration?: InsightsMetric
+  averageTestDuration?: InsightsMetric
+  extra?: Record<string, unknown>
+}
+
+export type TestInsights = {
+  flakyRate?: InsightsMetric
+  failRate?: InsightsMetric
+  skippedRate?: InsightsMetric
+  averageDuration?: InsightsMetric
+  averageP95Duration?: InsightsMetric
+  extra?: Record<string, unknown>
+}
+
+export type InsightsMetric = {
+  current: number
+  previous: number
+  change: number
+}
+
 /**
  * Metrics interfaces
  */
@@ -94,6 +120,20 @@ export interface TestMetrics {
   failedCount: number
   finalResults: number
   finalFailures: number
+}
+
+export interface Insights {
+  flakyRate: InsightsMetric
+  failRate: InsightsMetric
+  skippedRate: InsightsMetric
+  averageTestDuration: InsightsMetric
+  averageRunDuration: InsightsMetric
+}
+
+export interface InsightsMetric {
+  current: number
+  previous: number
+  change: number
 }
 
 /**
@@ -117,10 +157,15 @@ export interface EnhancedTestExtra {
  * Enhanced extra fields for summary.
  */
 export interface EnhancedSummaryExtra extends Record<string, unknown> {
+  // to be replaced with insights.flakyRate.current
   flakyRate: number
+  // to be replaced with insights.flakyRate.change
   flakyRateChange: number
+  // to be replaced with insights.failRate.current
   failRate: number
+  // to be replaced with insights.failRate.change
   failRateChange: number
+  // to be replaced with insights.finalResults.current
   finalResults: number
   finalFailures: number
   duration?: number

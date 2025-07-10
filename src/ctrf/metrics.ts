@@ -34,6 +34,11 @@ export function processTestReliabilityMetrics(
   maxReports = 100,
   reportsToExclude = 0
 ): CtrfReport {
+  // Create empty insights object as soon as we start processing test reliability metrics
+  if (!currentReport.insights) {
+    currentReport.insights = {}
+  }
+
   const previousReportsToUse = maxReports - 1
   const { metricsMap: historicalData, reportsUsed } =
     aggregateHistoricalTestData(
@@ -225,6 +230,11 @@ export async function processPreviousResultsAndMetrics(
   report: CtrfReport,
   githubContext: GitHubContext
 ): Promise<CtrfReport> {
+  // Create insights object early since we'll always set reportsAnalyzed
+  if (!report.insights) {
+    report.insights = {}
+  }
+
   const MAX_PAGES = Math.ceil(inputs.maxWorkflowRunsToCheck / 100)
   const PAGE_SIZE = 100
   let completed = 0
@@ -344,6 +354,11 @@ export async function processPreviousResultsAndMetrics(
 
     let updatedReport = addPreviousReportsToCurrentReport(reports, report)
 
+    // Ensure insights object exists on updated report
+    if (!updatedReport.insights) {
+      updatedReport.insights = {}
+    }
+
     if (
       inputs.flakyRateReport ||
       inputs.failRateReport ||
@@ -360,6 +375,10 @@ export async function processPreviousResultsAndMetrics(
     core.info(
       `Successfully processed ${reports.length + 1} reports from ${totalRunsChecked} workflow runs`
     )
+
+    // Set insights.reportsAnalyzed to total of current and all previous reports
+    updatedReport.insights!.reportsAnalyzed = reports.length + 1
+
     core.endGroup()
     return updatedReport
   } catch (error) {
