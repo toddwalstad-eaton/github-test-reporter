@@ -230,30 +230,60 @@ function aggregateTestMetricsAcrossReports(
   return metricsMap
 }
 
+/**
+ * Consolidates all test-level metrics into overall run-level metrics.
+ */
+function consolidateTestMetricsToRunMetrics(
+  metricsMap: Map<string, AggregatedTestMetrics>
+): AggregatedRunMetrics {
+  let totalAttempts = 0
+  let totalAttemptsFailed = 0
+  let totalResults = 0
+  let totalResultsFailed = 0
+  let totalResultsPassed = 0
+  let totalResultsSkipped = 0
+  let totalResultsFlaky = 0
+  let totalDuration = 0
+
+  for (const metrics of metricsMap.values()) {
+    totalAttempts += metrics.totalAttempts
+    totalAttemptsFailed += metrics.totalAttemptsFailed
+    totalResults += metrics.totalResults
+    totalResultsFailed += metrics.totalResultsFailed
+    totalResultsPassed += metrics.totalResultsPassed
+    totalResultsSkipped += metrics.totalResultsSkipped
+    totalResultsFlaky += metrics.totalResultsFlaky
+    totalDuration += metrics.totalDuration
+  }
+
+  return {
+    totalAttempts,
+    totalAttemptsFailed,
+    totalResults,
+    totalResultsFailed,
+    totalResultsPassed,
+    totalResultsSkipped,
+    totalResultsFlaky,
+    totalDuration
+  }
+}
+
 // ========================================
 // INSIGHT Flaky Rate FUNCTIONS
 // ========================================
 
 /**
- * Calculates overall flaky rate from aggregated test metrics.
+ * Calculates overall flaky rate from consolidated run metrics.
  * Flaky rate = (failed attempts from flaky tests) / (total attempts) * 100
  */
 function calculateFlakyRateFromMetrics(
-  metricsMap: Map<string, AggregatedTestMetrics>
+  runMetrics: AggregatedRunMetrics
 ): number {
-  let totalAttempts = 0
-  let totalResultsFlaky = 0
-
-  for (const metrics of metricsMap.values()) {
-    totalAttempts += metrics.totalAttempts
-    totalResultsFlaky += metrics.totalResultsFlaky
-  }
-
-  if (totalAttempts === 0) {
+  if (runMetrics.totalAttempts === 0) {
     return 0
   }
 
-  return Number(((totalResultsFlaky / totalAttempts) * 100).toFixed(2))
+  return Number(((runMetrics.totalResultsFlaky / runMetrics.totalAttempts) * 100).toFixed(2))
 }
 
 /**
@@ -271,8 +301,9 @@ export function calculateFlakyRateInsight(
   const allReports = [currentReport, ...previousReports]
 
   // Calculate flaky rate across all reports
-  const metrics = aggregateTestMetricsAcrossReports(allReports)
-  const current = calculateFlakyRateFromMetrics(metrics)
+  const testMetrics = aggregateTestMetricsAcrossReports(allReports)
+  const runMetrics = consolidateTestMetricsToRunMetrics(testMetrics)
+  const current = calculateFlakyRateFromMetrics(runMetrics)
 
   return { current, previous: 0, change: 0 }
 }
@@ -282,25 +313,17 @@ export function calculateFlakyRateInsight(
 // ========================================
 
 /**
- * Calculates overall fail rate from aggregated test metrics.
+ * Calculates overall fail rate from consolidated run metrics.
  * Fail rate = (totalResultsFailed / totalResults) * 100
  */
 function calculateFailRateFromMetrics(
-  metricsMap: Map<string, AggregatedTestMetrics>
+  runMetrics: AggregatedRunMetrics
 ): number {
-  let totalResults = 0
-  let totalResultsFailed = 0
-
-  for (const metrics of metricsMap.values()) {
-    totalResults += metrics.totalResults
-    totalResultsFailed += metrics.totalResultsFailed
-  }
-
-  if (totalResults === 0) {
+  if (runMetrics.totalResults === 0) {
     return 0
   }
 
-  return Number(((totalResultsFailed / totalResults) * 100).toFixed(2))
+  return Number(((runMetrics.totalResultsFailed / runMetrics.totalResults) * 100).toFixed(2))
 }
 
 /**
@@ -318,8 +341,9 @@ export function calculateFailRateInsight(
   const allReports = [currentReport, ...previousReports]
 
   // Calculate fail rate across all reports
-  const metrics = aggregateTestMetricsAcrossReports(allReports)
-  const current = calculateFailRateFromMetrics(metrics)
+  const testMetrics = aggregateTestMetricsAcrossReports(allReports)
+  const runMetrics = consolidateTestMetricsToRunMetrics(testMetrics)
+  const current = calculateFailRateFromMetrics(runMetrics)
 
   return { current, previous: 0, change: 0 }
 }
@@ -329,25 +353,17 @@ export function calculateFailRateInsight(
 // ========================================
 
 /**
- * Calculates overall skipped rate from aggregated test metrics.
+ * Calculates overall skipped rate from consolidated run metrics.
  * Skipped rate = (totalResultsSkipped / totalResults) * 100
  */
 function calculateSkippedRateFromMetrics(
-  metricsMap: Map<string, AggregatedTestMetrics>
+  runMetrics: AggregatedRunMetrics
 ): number {
-  let totalResults = 0
-  let totalResultsSkipped = 0
-
-  for (const metrics of metricsMap.values()) {
-    totalResults += metrics.totalResults
-    totalResultsSkipped += metrics.totalResultsSkipped
-  }
-
-  if (totalResults === 0) {
+  if (runMetrics.totalResults === 0) {
     return 0
   }
 
-  return Number(((totalResultsSkipped / totalResults) * 100).toFixed(2))
+  return Number(((runMetrics.totalResultsSkipped / runMetrics.totalResults) * 100).toFixed(2))
 }
 
 /**
@@ -365,8 +381,9 @@ export function calculateSkippedRateInsight(
   const allReports = [currentReport, ...previousReports]
 
   // Calculate skipped rate across all reports
-  const metrics = aggregateTestMetricsAcrossReports(allReports)
-  const current = calculateSkippedRateFromMetrics(metrics)
+  const testMetrics = aggregateTestMetricsAcrossReports(allReports)
+  const runMetrics = consolidateTestMetricsToRunMetrics(testMetrics)
+  const current = calculateSkippedRateFromMetrics(runMetrics)
 
   return { current, previous: 0, change: 0 }
 }
@@ -376,25 +393,17 @@ export function calculateSkippedRateInsight(
 // ========================================
 
 /**
- * Calculates average test duration from aggregated test metrics.
+ * Calculates average test duration from consolidated run metrics.
  * Average test duration = (totalDuration / totalResults)
  */
 function calculateAverageTestDurationFromMetrics(
-  metricsMap: Map<string, AggregatedTestMetrics>
+  runMetrics: AggregatedRunMetrics
 ): number {
-  let totalDuration = 0
-  let totalResults = 0
-
-  for (const metrics of metricsMap.values()) {
-    totalDuration += metrics.totalDuration
-    totalResults += metrics.totalResults
-  }
-
-  if (totalResults === 0) {
+  if (runMetrics.totalResults === 0) {
     return 0
   }
 
-  return Number((totalDuration / totalResults).toFixed(2))
+  return Number((runMetrics.totalDuration / runMetrics.totalResults).toFixed(2))
 }
 
 /**
@@ -412,8 +421,9 @@ export function calculateAverageTestDurationInsight(
   const allReports = [currentReport, ...previousReports]
 
   // Calculate average test duration across all reports
-  const metrics = aggregateTestMetricsAcrossReports(allReports)
-  const current = calculateAverageTestDurationFromMetrics(metrics)
+  const testMetrics = aggregateTestMetricsAcrossReports(allReports)
+  const runMetrics = consolidateTestMetricsToRunMetrics(testMetrics)
+  const current = calculateAverageTestDurationFromMetrics(runMetrics)
 
   return { current, previous: 0, change: 0 }
 }
@@ -423,24 +433,17 @@ export function calculateAverageTestDurationInsight(
 // ========================================
 
 /**
- * Calculates average run duration from multiple reports.
- * Average run duration = (sum of all run durations) / (number of reports)
+ * Calculates average run duration from consolidated run metrics.
+ * Average run duration = (totalDuration / totalResults)
  */
-function calculateAverageRunDurationFromMetrics( metricsMap: Map<string, AggregatedTestMetrics>
+function calculateAverageRunDurationFromMetrics(
+  runMetrics: AggregatedRunMetrics
 ): number {
-  let totalRunDuration = 0
-  let validReports = 0
-
-  for (const metrics of metricsMap.values()) {
-    totalRunDuration += metrics.totalDuration
-    validReports += 1
-  }
-
-  if (validReports === 0) {
+  if (runMetrics.totalResults === 0) {
     return 0
   }
 
-  return Number((totalRunDuration / validReports).toFixed(2))
+  return Number((runMetrics.totalDuration / runMetrics.totalResults).toFixed(2))
 }
 
 /**
@@ -457,10 +460,11 @@ export function calculateAverageRunDurationInsight(
   // Combine current report with all previous reports
   const allReports = [currentReport, ...previousReports]
 
-  const metrics = aggregateTestMetricsAcrossReports(allReports)
+  const testMetrics = aggregateTestMetricsAcrossReports(allReports)
+  const runMetrics = consolidateTestMetricsToRunMetrics(testMetrics)
 
   // Calculate average run duration across all reports
-  const current = calculateAverageRunDurationFromMetrics(metrics)
+  const current = calculateAverageRunDurationFromMetrics(runMetrics)
 
   return { current, previous: 0, change: 0 }
 }
@@ -481,31 +485,32 @@ export function calculateCurrentInsights(
   previousReports: CtrfReport[]
 ): Insights {
   const allReports = [currentReport, ...previousReports]
-  const metrics = aggregateTestMetricsAcrossReports(allReports)
+  const testMetrics = aggregateTestMetricsAcrossReports(allReports)
+  const runMetrics = consolidateTestMetricsToRunMetrics(testMetrics)
 
   return {
     flakyRate: {
-      current: calculateFlakyRateFromMetrics(metrics),
+      current: calculateFlakyRateFromMetrics(runMetrics),
       previous: 0,
       change: 0
     },
     failRate: {
-      current: calculateFailRateFromMetrics(metrics),
+      current: calculateFailRateFromMetrics(runMetrics),
       previous: 0,
       change: 0
     },
     skippedRate: {
-      current: calculateSkippedRateFromMetrics(metrics),
+      current: calculateSkippedRateFromMetrics(runMetrics),
       previous: 0,
       change: 0
     },
     averageTestDuration: {
-      current: calculateAverageTestDurationFromMetrics(metrics),
+      current: calculateAverageTestDurationFromMetrics(runMetrics),
       previous: 0,
       change: 0
     },
     averageRunDuration: {
-      current: calculateAverageRunDurationFromMetrics(metrics),
+      current: calculateAverageRunDurationFromMetrics(runMetrics),
       previous: 0,
       change: 0
     },
