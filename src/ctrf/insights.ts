@@ -411,6 +411,55 @@ export function calculateAverageTestDurationInsight(
 }
 
 // ========================================
+// INSIGHT Average Run Duration FUNCTIONS
+// ========================================
+
+/**
+ * Calculates average run duration from multiple reports.
+ * Average run duration = (sum of all run durations) / (number of reports)
+ */
+function calculateAverageRunDurationFromReports(reports: CtrfReport[]): number {
+  let totalRunDuration = 0
+  let validReports = 0
+
+  for (const report of reports) {
+    if (!validateReportForInsights(report)) continue
+    
+    const summary = report.results.summary
+    if (summary.start && summary.stop && summary.stop > summary.start) {
+      totalRunDuration += summary.stop - summary.start
+      validReports += 1
+    }
+  }
+
+  if (validReports === 0) {
+    return 0
+  }
+
+  return Number((totalRunDuration / validReports).toFixed(2))
+}
+
+/**
+ * Calculates average run duration insights across all reports (current + all previous).
+ *
+ * @param currentReport - The current CTRF report
+ * @param previousReports - Array of historical CTRF reports
+ * @returns InsightsMetric with current value calculated across all reports
+ */
+export function calculateAverageRunDurationInsight(
+  currentReport: CtrfReport,
+  previousReports: CtrfReport[]
+): InsightsMetric {
+  // Combine current report with all previous reports
+  const allReports = [currentReport, ...previousReports]
+
+  // Calculate average run duration across all reports
+  const current = calculateAverageRunDurationFromReports(allReports)
+
+  return { current, previous: 0, change: 0 }
+}
+
+// ========================================
 // INSIGHT Current FUNCTIONS
 // ========================================
 
@@ -450,7 +499,7 @@ export function calculateCurrentInsights(
       change: 0
     },
     averageRunDuration: {
-      current: calculateAverageTestDurationFromMetrics(metrics),
+      current: calculateAverageRunDurationFromReports(allReports),
       previous: 0,
       change: 0
     }
