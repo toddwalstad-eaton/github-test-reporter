@@ -140,6 +140,35 @@ export function isTestFlaky(test: CtrfTest): boolean {
 }
 
 /**
+ * Formats a ratio (0-1) as a percentage string for display.
+ *
+ * @param ratio - The ratio to format (0-1)
+ * @param decimals - Number of decimal places (default: 2)
+ * @returns Formatted percentage string (e.g., "25.50%")
+ */
+export function formatAsPercentage(ratio: number, decimals: number = 2): string {
+  return `${(ratio * 100).toFixed(decimals)}%`
+}
+
+/**
+ * Formats an InsightsMetric as percentage strings for display.
+ *
+ * @param metric - The insights metric to format
+ * @param decimals - Number of decimal places (default: 2)
+ * @returns Object with formatted percentage strings
+ */
+export function formatInsightsMetricAsPercentage(
+  metric: InsightsMetric,
+  decimals: number = 2
+): { current: string; previous: string; change: string } {
+  return {
+    current: formatAsPercentage(metric.current, decimals),
+    previous: formatAsPercentage(metric.previous, decimals),
+    change: `${metric.change >= 0 ? '+' : ''}${formatAsPercentage(metric.change, decimals)}`
+  }
+}
+
+/**
  * Helper function to validate that reports have the necessary data for insights calculation.
  */
 function validateReportForInsights(report: CtrfReport): boolean {
@@ -288,7 +317,7 @@ function consolidateTestMetricsToRunMetrics(
 
 /**
  * Calculates overall flaky rate from consolidated run metrics.
- * Flaky rate = (failed attempts from flaky tests) / (total attempts) * 100
+ * Flaky rate = (failed attempts from flaky tests) / (total attempts) as ratio 0-1
  */
 function calculateFlakyRateFromMetrics(
   runMetrics: AggregatedRunMetrics
@@ -297,7 +326,7 @@ function calculateFlakyRateFromMetrics(
     return 0
   }
 
-  return Number(((runMetrics.totalResultsFlaky / runMetrics.totalAttempts) * 100).toFixed(2))
+  return Number((runMetrics.totalResultsFlaky / runMetrics.totalAttempts).toFixed(4))
 }
 
 /**
@@ -328,7 +357,7 @@ export function calculateFlakyRateInsight(
 
 /**
  * Calculates overall fail rate from consolidated run metrics.
- * Fail rate = (totalResultsFailed / totalResults) * 100
+ * Fail rate = (totalResultsFailed / totalResults) as ratio 0-1
  */
 function calculateFailRateFromMetrics(
   runMetrics: AggregatedRunMetrics
@@ -337,7 +366,7 @@ function calculateFailRateFromMetrics(
     return 0
   }
 
-  return Number(((runMetrics.totalResultsFailed / runMetrics.totalResults) * 100).toFixed(2))
+  return Number((runMetrics.totalResultsFailed / runMetrics.totalResults).toFixed(4))
 }
 
 /**
@@ -368,7 +397,7 @@ export function calculateFailRateInsight(
 
 /**
  * Calculates overall skipped rate from consolidated run metrics.
- * Skipped rate = (totalResultsSkipped / totalResults) * 100
+ * Skipped rate = (totalResultsSkipped / totalResults) as ratio 0-1
  */
 function calculateSkippedRateFromMetrics(
   runMetrics: AggregatedRunMetrics
@@ -377,7 +406,7 @@ function calculateSkippedRateFromMetrics(
     return 0
   }
 
-  return Number(((runMetrics.totalResultsSkipped / runMetrics.totalResults) * 100).toFixed(2))
+  return Number((runMetrics.totalResultsSkipped / runMetrics.totalResults).toFixed(4))
 }
 
 /**
@@ -548,7 +577,7 @@ function calculateTestFlakyRate(
   testMetrics: AggregatedTestMetrics
 ): InsightsMetric {
   const current = testMetrics.totalResults === 0 ? 0 : 
-    Number(((testMetrics.totalResultsFlaky / testMetrics.totalResults) * 100).toFixed(2))
+    Number((testMetrics.totalResultsFlaky / testMetrics.totalResults).toFixed(4))
 
   return { current, previous: 0, change: 0 }
 }
@@ -561,7 +590,7 @@ function calculateTestFailRate(
   testMetrics: AggregatedTestMetrics
 ): InsightsMetric {
   const current = testMetrics.totalResults === 0 ? 0 : 
-    Number(((testMetrics.totalResultsFailed / testMetrics.totalResults) * 100).toFixed(2))
+    Number((testMetrics.totalResultsFailed / testMetrics.totalResults).toFixed(4))
 
   return { current, previous: 0, change: 0 }
 }
@@ -574,7 +603,7 @@ function calculateTestSkippedRate(
   testMetrics: AggregatedTestMetrics
 ): InsightsMetric {
   const current = testMetrics.totalResults === 0 ? 0 : 
-    Number(((testMetrics.totalResultsSkipped / testMetrics.totalResults) * 100).toFixed(2))
+    Number((testMetrics.totalResultsSkipped / testMetrics.totalResults).toFixed(4))
 
   return { current, previous: 0, change: 0 }
 }
@@ -684,17 +713,17 @@ export function calculateReportInsightsBaseline(
     flakyRate: {
       current: currentInsights.flakyRate.current,
       previous: previousInsights.flakyRate.current,
-      change: Number((currentInsights.flakyRate.current - previousInsights.flakyRate.current).toFixed(2))
+      change: Number((currentInsights.flakyRate.current - previousInsights.flakyRate.current).toFixed(4))
     },
     failRate: {
       current: currentInsights.failRate.current,
       previous: previousInsights.failRate.current,
-      change: Number((currentInsights.failRate.current - previousInsights.failRate.current).toFixed(2))
+      change: Number((currentInsights.failRate.current - previousInsights.failRate.current).toFixed(4))
     },
     skippedRate: {
       current: currentInsights.skippedRate.current,
       previous: previousInsights.skippedRate.current,
-      change: Number((currentInsights.skippedRate.current - previousInsights.skippedRate.current).toFixed(2))
+      change: Number((currentInsights.skippedRate.current - previousInsights.skippedRate.current).toFixed(4))
     },
     averageTestDuration: {
       current: currentInsights.averageTestDuration.current,
