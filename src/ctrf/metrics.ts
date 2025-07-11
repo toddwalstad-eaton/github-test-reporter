@@ -388,6 +388,11 @@ export async function processPreviousResultsAndMetrics(
     // @ts-ignore - TODO: fix this - types differ for now
     updatedReport = addTestInsightsToCurrentReport(updatedReport, reports)
 
+    // iterate over previous runs and set tests to []
+    updatedReport.results.extra!.previousReports.forEach(run => {
+      run.results.tests = []
+    })
+
     if (
       inputs.flakyRateReport ||
       inputs.failRateReport ||
