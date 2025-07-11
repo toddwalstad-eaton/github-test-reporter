@@ -20,10 +20,12 @@ jobs:
         run: npm install
       - name: Build
         run: npm run package
+      - name: test
+        run: npm run test
       - name: Publish Test Report
         uses: ./
         with:
-          report-path: './ctrf-reports/*.json'
+          report-path: './ctrf/*.json'
           test-report: true
           previous-results-report: true
           write-ctrf-to-file: ./ctrf/new-ctrf-report.json

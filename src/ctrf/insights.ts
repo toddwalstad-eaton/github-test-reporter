@@ -20,6 +20,7 @@ export interface TestInsights {
   failRate: InsightsMetric
   skippedRate: InsightsMetric
   averageTestDuration: InsightsMetric
+  p95Duration: InsightsMetric
   appearsInRuns: number
   extra?: Record<string, unknown>
 }
@@ -169,6 +170,21 @@ export function formatInsightsMetricAsPercentage(
 }
 
 /**
+ * Calculates the 95th percentile from an array of numbers.
+ *
+ * @param values - Array of numeric values
+ * @returns The 95th percentile value
+ */
+function calculateP95(values: number[]): number {
+  if (values.length === 0) return 0
+  
+  const sorted = [...values].sort((a, b) => a - b)
+  const index = Math.ceil(sorted.length * 0.95) - 1
+  
+  return Number(sorted[Math.max(0, index)].toFixed(2))
+}
+
+/**
  * Helper function to validate that reports have the necessary data for insights calculation.
  */
 function validateReportForInsights(report: CtrfReport): boolean {
@@ -195,6 +211,7 @@ interface AggregatedRunMetrics {
  */
 interface AggregatedTestMetrics extends AggregatedRunMetrics {
   appearsInRuns: number // Number of runs test appears in
+  durations: number[] // Individual duration values for percentile calculations
 }
 
 /**
@@ -229,7 +246,8 @@ function aggregateTestMetricsAcrossReports(
           totalResultsFlaky: 0,
           totalResultsDuration: 0,
           appearsInRuns: 0,
-          reportsAnalyzed: 0
+          reportsAnalyzed: 0,
+          durations: []
         })
       }
 
@@ -256,6 +274,7 @@ function aggregateTestMetricsAcrossReports(
       }
 
       metrics.totalResultsDuration += test.duration || 0
+      metrics.durations.push(test.duration || 0)
     }
 
     // Track which tests appeared in this report
@@ -622,6 +641,18 @@ function calculateTestAverageDuration(
 }
 
 /**
+ * Calculates test-level p95 duration for a specific test.
+ */
+function calculateTestP95Duration(
+  testName: string,
+  testMetrics: AggregatedTestMetrics
+): InsightsMetric {
+  const current = calculateP95(testMetrics.durations)
+
+  return { current, previous: 0, change: 0 }
+}
+
+/**
  * Calculates test-level insights for a specific test.
  */
 function calculateTestInsights(
@@ -635,6 +666,7 @@ function calculateTestInsights(
     failRate: calculateTestFailRate(testName, testMetrics),
     skippedRate: calculateTestSkippedRate(testName, testMetrics),
     averageTestDuration: calculateTestAverageDuration(testName, testMetrics),
+    p95Duration: calculateTestP95Duration(testName, testMetrics),
     appearsInRuns: testMetrics.appearsInRuns,
     extra: relevantMetrics
   }
@@ -745,7 +777,8 @@ export function calculateReportInsightsBaseline(
 // avg tests per run
 
 // basline functions. Pass in a previous report and a current report and update current report with insights.
-
+// tests removed since baseline
+// tests added since baseline
 
 
 
