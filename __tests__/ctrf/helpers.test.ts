@@ -6,11 +6,11 @@ describe('getEmoji', () => {
     expect(getEmoji('passed')).toBe('✅')
   })
 
-  // it('returns the correct emoji for "failed"', () => {
-  //   expect(getEmoji('failed')).toBe('❌')
-  // })
+  it('returns the correct emoji for "failed"', () => {
+    expect(getEmoji('failed')).toBe('❌')
+  })
 
-  it('returns the correct emoji for "skip dip dip"', () => {
+  it('returns the correct emoji for "skippedssdsd"', () => {
     expect(getEmoji('skipped')).toBe('⏭️')
   })
 
