@@ -53,7 +53,7 @@ export function addPreviousReportsToCurrentReport(
       results: {
         tool: previous.results.tool,
         summary: previous.results.summary,
-        tests: [],
+        tests: previous.results.tests,
         environment: previous.results.environment,
       }
     }
