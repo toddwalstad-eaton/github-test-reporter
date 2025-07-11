@@ -772,6 +772,101 @@ export function calculateReportInsightsBaseline(
   }
 }
 
+/**
+ * Gets test details for tests that have been removed since the baseline report.
+ * A test is considered removed if it exists in the baseline report but not in the current report.
+ *
+ * @param currentReport - The current CTRF report
+ * @param baselineReport - The baseline CTRF report to compare against
+ * @returns Array of CtrfTest objects that were removed since baseline
+ */
+export function getTestsRemovedSinceBaseline(
+  currentReport: CtrfReport,
+  baselineReport: CtrfReport
+): CtrfTest[] {
+  if (!validateReportForInsights(currentReport) || !validateReportForInsights(baselineReport)) {
+    return []
+  }
+
+  const currentTestNames = new Set(currentReport.results.tests.map(test => test.name))
+  const removedTests = baselineReport.results.tests.filter(test => !currentTestNames.has(test.name))
+
+  return removedTests
+}
+
+/**
+ * Gets test details for tests that have been added since the baseline report.
+ * A test is considered added if it exists in the current report but not in the baseline report.
+ *
+ * @param currentReport - The current CTRF report
+ * @param baselineReport - The baseline CTRF report to compare against
+ * @returns Array of CtrfTest objects that were added since baseline
+ */
+export function getTestsAddedSinceBaseline(
+  currentReport: CtrfReport,
+  baselineReport: CtrfReport
+): CtrfTest[] {
+  if (!validateReportForInsights(currentReport) || !validateReportForInsights(baselineReport)) {
+    return []
+  }
+
+  const baselineTestNames = new Set(baselineReport.results.tests.map(test => test.name))
+  const addedTests = currentReport.results.tests.filter(test => !baselineTestNames.has(test.name))
+
+  return addedTests
+}
+
+/**
+ * Sets the removed tests array to insights.extra.testsRemoved.
+ * Calculates which tests were removed since the baseline and adds them to the insights extra data.
+ *
+ * @param insights - The insights object to modify
+ * @param currentReport - The current CTRF report
+ * @param baselineReport - The baseline CTRF report to compare against
+ * @returns The insights object with testsRemoved added to extra
+ */
+export function setTestsRemovedToInsights(
+  insights: Insights,
+  currentReport: CtrfReport,
+  baselineReport: CtrfReport
+): Insights {
+  const removedTests = getTestsRemovedSinceBaseline(currentReport, baselineReport)
+  
+  return {
+    ...insights,
+    extra: {
+      ...insights.extra,
+      testsRemoved: removedTests
+    }
+  }
+}
+
+/**
+ * Sets the added tests array to insights.extra.testsAdded.
+ * Calculates which tests were added since the baseline and adds them to the insights extra data.
+ *
+ * @param insights - The insights object to modify
+ * @param currentReport - The current CTRF report
+ * @param baselineReport - The baseline CTRF report to compare against
+ * @returns The insights object with testsAdded added to extra
+ */
+export function setTestsAddedToInsights(
+  insights: Insights,
+  currentReport: CtrfReport,
+  baselineReport: CtrfReport
+): Insights {
+  const addedTests = getTestsAddedSinceBaseline(currentReport, baselineReport)
+  
+  return {
+    ...insights,
+    extra: {
+      ...insights.extra,
+      testsAdded: addedTests
+    }
+  }
+}
+
+// ========================================
 // what to do
 // p95 duration per test
 // avg tests per run

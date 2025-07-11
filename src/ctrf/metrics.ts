@@ -18,7 +18,7 @@ import {
   enrichReportSummary,
   addPreviousReportsToCurrentReport
 } from '.'
-import { addTestInsightsToCurrentReport, calculateRunInsights, calculateReportInsightsBaseline } from './insights'
+import { addTestInsightsToCurrentReport, calculateRunInsights, calculateReportInsightsBaseline, setTestsAddedToInsights, setTestsRemovedToInsights } from './insights'
 
 /**
  * Processes a CTRF report and enriches it with reliability metrics.
@@ -365,6 +365,22 @@ export async function processPreviousResultsAndMetrics(
 
     updatedReport.insights = calculateReportInsightsBaseline(
       updatedReport as any,
+      // @ts-ignore - TODO: fix this - types differ for now
+      updatedReport.results.extra?.previousReports[0]
+    )
+
+    updatedReport.insights = setTestsAddedToInsights(
+      // @ts-ignore - TODO: fix this - types differ for now
+      updatedReport.insights,
+      updatedReport,
+      // @ts-ignore - TODO: fix this - types differ for now
+      updatedReport.results.extra?.previousReports[0]
+    )
+
+    updatedReport.insights = setTestsRemovedToInsights(
+      // @ts-ignore - TODO: fix this - types differ for now
+      updatedReport.insights,
+      updatedReport,
       // @ts-ignore - TODO: fix this - types differ for now
       updatedReport.results.extra?.previousReports[0]
     )
