@@ -122,6 +122,12 @@ export interface InsightsMetric {
   change: number
 }
 
+export interface SimplifiedTestData {
+  name: string
+  suite?: string
+  filePath?: string
+}
+
 // ========================================
 // UTILITY FUNCTIONS
 // ========================================
@@ -783,7 +789,7 @@ export function calculateReportInsightsBaseline(
 export function getTestsRemovedSinceBaseline(
   currentReport: CtrfReport,
   baselineReport: CtrfReport
-): CtrfTest[] {
+): SimplifiedTestData[] {
   if (!validateReportForInsights(currentReport) || !validateReportForInsights(baselineReport)) {
     return []
   }
@@ -791,7 +797,11 @@ export function getTestsRemovedSinceBaseline(
   const currentTestNames = new Set(currentReport.results.tests.map(test => test.name))
   const removedTests = baselineReport.results.tests.filter(test => !currentTestNames.has(test.name))
 
-  return removedTests
+  return removedTests.map(test => ({
+    name: test.name,
+    suite: test.suite,
+    filePath: test.filePath
+  }))
 }
 
 /**
@@ -805,7 +815,7 @@ export function getTestsRemovedSinceBaseline(
 export function getTestsAddedSinceBaseline(
   currentReport: CtrfReport,
   baselineReport: CtrfReport
-): CtrfTest[] {
+): SimplifiedTestData[] {
   if (!validateReportForInsights(currentReport) || !validateReportForInsights(baselineReport)) {
     return []
   }
@@ -813,7 +823,11 @@ export function getTestsAddedSinceBaseline(
   const baselineTestNames = new Set(baselineReport.results.tests.map(test => test.name))
   const addedTests = currentReport.results.tests.filter(test => !baselineTestNames.has(test.name))
 
-  return addedTests
+  return addedTests.map(test => ({
+    name: test.name,
+    suite: test.suite,
+    filePath: test.filePath
+  }))
 }
 
 /**
